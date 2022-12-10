@@ -1,5 +1,5 @@
 ﻿
-fic = open("messageADecoder.txt", "r")
+fic = open("msg.txt", "r")
 datas = fic.read()
 fic.close()
 

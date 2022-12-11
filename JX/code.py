@@ -1,4 +1,4 @@
-fic = open("message.txt", "r")
+fic = open("msgTest.txt", "r")
 datas = fic.read()
 fic.close()
 

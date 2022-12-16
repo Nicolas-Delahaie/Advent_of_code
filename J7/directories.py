@@ -2,16 +2,31 @@ fic = open("msg.txt", "r")
 datas = fic.read()
 fic.close()
 
-
 lignesConsole = datas.split("\n")
 lignesConsole.remove("$ cd /")
-
 
 class Dossier:
     """Definition d un dossier"""
     def __init__(self, nom:str, contenu = None):
         self._nom = nom
         self._contenu = contenu if contenu else []
+    def __repr__(self):
+        return self.__str__()
+    def __str__ (self, profondeur = 0):
+        '''Retourne le dossier de maniere graphique'''
+        msg = "- "+self._nom+"\n"
+        profondeur += 1
+        for enfant in self._contenu:
+            for loop in range(profondeur):
+                msg += "| "
+            if isinstance(enfant, Dossier):
+                #Dossier
+                msg += enfant.__str__(profondeur)
+            else:
+                #Condition d arret : ne pas etre un dossier
+                msg += "- "+str(enfant)+"\n"
+        return msg
+        
     
     def getSousDossier(self, arborescence=[]):
         if (arborescence == []):
@@ -33,115 +48,60 @@ class Dossier:
     def ajouter (self, elmt):
         self._contenu.append(elmt)
         
-    def sommeFichiers (self, tailleMax = 100000):
+    def sommeDossier (self):
+        """Retourne la somme de tous les fichiers descendants de self"""
         somme = 0
         for enfant in self._contenu:
             if isinstance(enfant, Dossier):
                 #Dossier
-                somme += enfant.sommeFichiers()
+                somme += enfant.sommeDossier()
             else:
-                #Condition d arret : ne pas etre un dossier
-                if enfant < tailleMax:
-                    somme += enfant
+                #Fichier (condition d arret)
+                somme += enfant
         return somme
     
-    def __repr__(self):
-        return self.__str__()
+    def ajoutDossiersInferieursA(self, somme, tailleMax = 100000):
+        """Retourne la somme de tous les dossiers descendants de self ayant une taille inferieure a tailleMax"""
+        sommeTotale = self.sommeDossier()
+        if sommeTotale <= tailleMax:
+            somme.append(sommeTotale)
+        for sousDossier in self._contenu:
+            if isinstance(sousDossier, Dossier):
+                sousDossier.ajoutDossiersInferieursA(somme)
     
-    def __str__ (self, profondeur = 0):
-        '''Retourne le dossier de la maniere suivante :
-            doss(doss1(), doss2(11), 11, doss3(doss4(11,11), doss5()))'''
-        
-        
-        msg = "- "+self._nom+"\n"
-        
-        profondeur += 1
-        for enfant in self._contenu:
-            for loop in range(profondeur):
-                msg += "  "
-            if isinstance(enfant, Dossier):
-                #Dossier
-                msg += enfant.__str__(profondeur)
+    
+    
+def lignesConsolesINTODossier(lignesConsole):
+    source = Dossier("source")
+    emplacementCourant = []
+    for ligne in lignesConsole:
+        if ((ligne[2:4] == "cd")):
+            #Change directory
+            if (ligne[-2:] == ".."):
+                #cd Retour
+                emplacementCourant.pop()
             else:
-                #Condition d arret : ne pas etre un dossier
-                msg += "- "+str(enfant)+"\n"
-
-
-        return msg
-
-"""
-
-- source
-  - a
-    - e
-      827749
-  - b
-  - c
-
-"""
-source = Dossier("source", [
-            Dossier("a", [
-                Dossier("e",[
-                    584]),
-                29116,
-                2557,
-                62596]),
-            14848514,
-            8504156,
-            Dossier("d", [
-                4060174,
-                8033020,
-                5626152,
-                7214296])])
-
-
-#source.getSousDossier(["d"]).ajouter(Dossier("x", []))
-#source.getSousDossier(["d", "x"]).ajouter(999)
-#print(source.getSousDossier(["d","x"])._contenu)
-#print("somme =",source.sommeFichiers())
-
-#print(source.sommeFichiers())
-"""
-lignesConsole=['$ ls',
- 'dir a',
- '14848514 b.txt',
- 'dir d',
- '$ cd a']
- #'29116 f']
-"""
-source = Dossier("source")
-#print(source.toString())
-
-emplacementCourant = []
-for ligne in lignesConsole:
-    
-    if ((ligne[2:4] == "cd")):
-        #Change directory
-        if (ligne[-2:] == ".."):
-            #cd Retour
-            emplacementCourant.pop()
-            #print("Retour")
+                #cd Repertoire
+                emplacementCourant.append(ligne[5:])
+            
+        elif (ligne[:3] == "dir"):
+            #Creer repertoire
+            source.getSousDossier(emplacementCourant).ajouter(Dossier(ligne[4:]))
             
         else:
-            #cd Repertoire
-            emplacementCourant.append(ligne[5:])
-            #print("Déplace :",ligne[5:])
-        
-    elif (ligne[:3] == "dir"):
-        #Creer repertoire
-        source.getSousDossier(emplacementCourant).ajouter(Dossier(ligne[4:]))
-        #print("Créé :",ligne[4:],"dans",emplacementCourant)
-        
-    else:
-        if (ligne[:4] != "$ ls"):
-            #Creer fichier
-            tailleFic = int(ligne.split(" ")[0])
-            #print("Créé :", tailleFic,"dans",emplacementCourant,", le fichier avec comme contenu : ",source.getSousDossier(emplacementCourant)._contenu)
-            #print("Créé :",tailleFic,"dans",emplacementCourant)
-            source.getSousDossier(emplacementCourant).ajouter(tailleFic)
+            if (ligne[:4] != "$ ls"):
+                #Creer fichier
+                tailleFic = int(ligne.split(" ")[0])
+                
+                print(ligne)
+                print(source)
+                #print(source.getSousDossier(emplacementCourant))
+                source.getSousDossier(emplacementCourant).ajouter(tailleFic)
+    return source
             
+source = lignesConsolesINTODossier(lignesConsole)
 print(source)
-print(source.sommeFichiers())
-    
-print("\n\n")
-
+print(source.sommeDossier())
+dossiersOk = []
+source.ajoutDossiersInferieursA(dossiersOk)
+print(sum(dossiersOk))

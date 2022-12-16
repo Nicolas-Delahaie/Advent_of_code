@@ -1,0 +1,38 @@
+$ cd /
+dir anglais
+dir prog
+dir droit
+9373 e
+$ cd anglais
+dir but1
+dir but2
+$ cd but1
+920 oral
+$ cd ..
+$ cd but2
+dir presentation
+$ cd presentation
+837 l
+$ cd ..
+$ cd ..
+$ cd ..
+$ cd prog
+dir assembleur
+dir HTML
+938 f
+$ cd assembleur
+83763 tp1
+837 tp2
+94871 tp4
+$ cd ..
+$ cd HTML
+dir siteBesta
+8373 outils
+$ cd siteBesta
+9274 patate
+$ cd ..
+$ cd ..
+$ cd ..
+$ cd droit
+8273 f
+$ cd ..

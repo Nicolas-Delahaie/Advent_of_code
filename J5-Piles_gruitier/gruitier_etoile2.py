@@ -44,7 +44,6 @@ for phraseInstruction in phrasesInstructions:
     destination = int(phraseInstruction[5])
     instructions.append([nbDepl, source - 1, destination - 1])
 
-
 #Deplacement des caisses
 for instruction in instructions:
     nbDepl = instruction[0]

@@ -74,9 +74,9 @@ class Dossier:
         """Retourne la taille du fichier parmi de tous les dossiers descendants de self ayant la taille la plus petite, superieure a tailleADepasser"""
         tailleDossier = self.tailleDossier()
         #la plus petite taille devient celle du dossier si elle est inferiere a celle d avant
-        print(" "+str(tailleDossier),"est entre",tailleADepasser,"et",tailleMin[0],"?")
+        #print(" "+str(tailleDossier),"est entre",tailleADepasser,"et",tailleMin[0],"?")
         if tailleADepasser < tailleDossier and tailleDossier < tailleMin[0]:
-            print("OUI ------------------------------------------")
+            #print("OUI ------------------------------------------")
             tailleMin[0] = tailleDossier
             
             

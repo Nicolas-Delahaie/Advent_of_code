@@ -48,13 +48,13 @@ class Dossier:
     def ajouter (self, elmt):
         self._contenu.append(elmt)
         
-    def sommeDossier (self):
+    def tailleDossier (self):
         """Retourne la somme de tous les fichiers descendants de self"""
         somme = 0
         for enfant in self._contenu:
             if isinstance(enfant, Dossier):
                 #Dossier
-                somme += enfant.sommeDossier()
+                somme += enfant.tailleDossier()
             else:
                 #Fichier (condition d arret)
                 somme += enfant
@@ -62,7 +62,7 @@ class Dossier:
     
     def ajoutDossiersInferieursA(self, somme, tailleMax = 100000):
         """Retourne la somme de tous les dossiers descendants de self ayant une taille inferieure a tailleMax"""
-        sommeTotale = self.sommeDossier()
+        sommeTotale = self.tailleDossier()
         if sommeTotale <= tailleMax:
             somme.append(sommeTotale)
         for sousDossier in self._contenu:
@@ -70,8 +70,21 @@ class Dossier:
                 sousDossier.ajoutDossiersInferieursA(somme)
     
     
+    def plusPetiteTailleSuperieureA(self, tailleMin, tailleADepasser):
+        """Retourne la taille du fichier parmi de tous les dossiers descendants de self ayant la taille la plus petite, superieure a tailleADepasser"""
+        tailleDossier = self.tailleDossier()
+        #la plus petite taille devient celle du dossier si elle est inferiere a celle d avant
+        print(" "+str(tailleDossier),"est entre",tailleADepasser,"et",tailleMin[0],"?")
+        if tailleADepasser < tailleDossier and tailleDossier < tailleMin[0]:
+            print("OUI ------------------------------------------")
+            tailleMin[0] = tailleDossier
+            
+            
+        for sousDossier in self._contenu:
+            if isinstance(sousDossier, Dossier):
+                sousDossier.plusPetiteTailleSuperieureA(tailleMin, tailleADepasser)
     
-def lignesConsolesINTODossier(lignesConsole):
+def dossierFROMLignes(lignesConsole):
     source = Dossier("source")
     emplacementCourant = []
     for ligne in lignesConsole:
@@ -92,16 +105,26 @@ def lignesConsolesINTODossier(lignesConsole):
             if (ligne[:4] != "$ ls"):
                 #Creer fichier
                 tailleFic = int(ligne.split(" ")[0])
-                
-                print(ligne)
-                print(source)
-                #print(source.getSousDossier(emplacementCourant))
                 source.getSousDossier(emplacementCourant).ajouter(tailleFic)
     return source
             
-source = lignesConsolesINTODossier(lignesConsole)
+source = dossierFROMLignes(lignesConsole)
 print(source)
-print(source.sommeDossier())
+
+tailleSource = source.tailleDossier()
+#print(tailleSource)
+
 dossiersOk = []
 source.ajoutDossiersInferieursA(dossiersOk)
-print(sum(dossiersOk))
+#print(sum(dossiersOk),"\n")
+
+espaceTotal = 70000000
+espaceNecessaire = 30000000
+espaceLibre = espaceTotal - tailleSource
+espaceALiberer = espaceNecessaire-espaceLibre
+
+plusPetiteTaille = [float("inf")]
+source.plusPetiteTailleSuperieureA(plusPetiteTaille, espaceALiberer)
+print(espaceALiberer)
+
+

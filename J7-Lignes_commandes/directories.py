@@ -74,9 +74,7 @@ class Dossier:
         """Retourne la taille du fichier parmi de tous les dossiers descendants de self ayant la taille la plus petite, superieure a tailleADepasser"""
         tailleDossier = self.tailleDossier()
         #la plus petite taille devient celle du dossier si elle est inferiere a celle d avant
-        #print(" "+str(tailleDossier),"est entre",tailleADepasser,"et",tailleMin[0],"?")
         if tailleADepasser < tailleDossier and tailleDossier < tailleMin[0]:
-            #print("OUI ------------------------------------------")
             tailleMin[0] = tailleDossier
             
             
@@ -112,19 +110,19 @@ source = dossierFROMLignes(lignesConsole)
 print(source)
 
 tailleSource = source.tailleDossier()
-#print(tailleSource)
+print("TailleSource :",tailleSource)
 
 dossiersOk = []
 source.ajoutDossiersInferieursA(dossiersOk)
-#print(sum(dossiersOk),"\n")
+print("Somme dossiers inferieurs a 100000 :",sum(dossiersOk))
 
 espaceTotal = 70000000
 espaceNecessaire = 30000000
 espaceLibre = espaceTotal - tailleSource
-espaceALiberer = espaceNecessaire-espaceLibre
-
+espaceALiberer = espaceNecessaire - espaceLibre
 plusPetiteTaille = [float("inf")]
 source.plusPetiteTailleSuperieureA(plusPetiteTaille, espaceALiberer)
-print(espaceALiberer)
+print("Taille du dossier a liberer :", plusPetiteTaille[0])
+
 
 

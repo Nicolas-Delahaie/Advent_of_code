@@ -1,11 +1,9 @@
 from graphics import *
 import time
 
-fic = open(__file__ + "/../msg.txt", "r")
+fic = open(__file__ + "/../msgTest.txt", "r")
 datas = fic.read()
 fic.close()
-
-
 class Noeud:
     def __init__(self,x,y):
         self.x = x
@@ -14,7 +12,7 @@ class Noeud:
         return "("+str(self.x)+":"+str(self.y)+")"
     def __repr__(self):
         return self.__str__()
-    
+
     def copy(self):
         return Noeud(self.x, self.y)
     
@@ -41,32 +39,51 @@ class Noeud:
         return (deltaX, deltaY)
     def suivre(self, noeud, ancienneTete):
         """Modifie le noeud de maniere a le positionner colle au noeud en parametre"""
-        ancienneQueue = self.copy()
+        noeudAvantModif = self.copy()
         if not self.estColleA(noeud):
             #Il necessite d etre raproche du noeud
-            if self.x==noeud.x:
-                #Sur la meme colonne
-                if self.y < noeud.y:
-                    #Au dessus de  noeud
-                    self.deplacer(Direction("D"))
-                else:
-                    #En dessous de noeud
-                    self.deplacer(Direction("U"))
-                    
-            if self.y==noeud.y:
-                #Sur la meme ligne
-                if self.x < noeud.x:
-                    #A gauche de noeud
-                    self.deplacer(Direction("R"))
-                else:
-                    #A droite de noeud
-                    self.deplacer(Direction("L"))
-                
-            else:
-                #Sur une rangee differente
-                self = ancienneTete
-        return ancienneQueue         
+            self.x = ancienneTete.x
+            self.y = ancienneTete.y
+        return noeudAvantModif         
+class Corde:
+    def __init__(self,nbNoeuds, NoeudDepart):
+        self.taille = nbNoeuds
+        self.noeuds = []
+        for loop in range(nbNoeuds):
+            self.noeuds.append(NoeudDepart.copy())
+    def __str__(self):
+        msg = self.noeuds[0].__str__()
+        for i in range(1,len(self.noeuds)):
+            msg += " <- "+self.noeuds[i].__str__()
+        return msg
+    def __repr__(self):
+        return self.__str__()
     
+    def deplacerTete(self, direction):
+        #Deplacement de la tete
+        ancienNoeud = self.noeuds[0].copy()
+        self.noeuds[0].deplacer(direction)
+
+        noeudSuivant = 1
+        while noeudSuivant < self.taille :
+            if not self.noeuds[noeudSuivant].estColleA(self.noeuds[noeudSuivant-1]):
+                #Si le noeud suivant suivant n est pas colle, le deplacer
+                ancienNoeud = self.noeuds[noeudSuivant].suivre(self.noeuds[noeudSuivant-1], ancienNoeud)
+                noeudSuivant += 1
+            else:
+                break
+        
+    def executeInstructions(self, instructionsGroupees, casesVisitees):
+        """Execute les instructions de deplacement de la corde"""
+
+        casesVisitees.grille[self.noeuds[-1].y][self.noeuds[-1].x] = True
+        for instructionGroupee in instructionsGroupees:
+            for loop in range(instructionGroupee[1]):
+                print(self.noeuds, instructionGroupee[0])
+                self.deplacerTete(instructionGroupee[0])
+                casesVisitees.grille[self.noeuds[-1].y][self.noeuds[-1].x] = True
+               
+        return casesVisitees
 class Direction:
     def __init__(self,x,y=None):
         """Constructeur avec x et y pour le vecteur ou bien U,R,D ou L"""
@@ -107,82 +124,116 @@ class Direction:
         return sens
     def __repr__(self):
         return self.__str__()
-    
-class Corde:
-    def __init__(self,nbNoeuds, NoeudDepart):
-        self.taille = nbNoeuds
-        self.corps = []
-        for loop in range(nbNoeuds):
-            self.corps.append(NoeudDepart.copy())
-            
-    def __str__(self):
-        msg = self.corps[0].__str__()
-        for membre in self.corps:
-            msg += " <- "+membre.__str__()
-        return msg
+class Grille:
+    def __init__(self, larg = 0, long = 0):
+        self.larg = larg
+        self.long = long
+        if larg != 0 and long != 0:
+            self.initGrille()
+        else:
+            self.grille = None
     def __repr__(self):
         return self.__str__()
-    
-    def deplacerTete(self, direction):
-        ancienNoeud = self.corps[0].copy()
-        self.corps[0].deplacer(direction)
-        
-        for i in range(1,self.taille -1):
-            #Pour tous les noeuds suivants
-            ancienNoeud = self.corps[i].suivre(self.corps[i-1], ancienNoeud)
-            
-# class Fenetre:
-#     def __init__(self, nom, larg, long, corde, instructionsGroupees):
-#         self.nom = nom
-#         self.larg = larg
-#         self.long = long
-#         self.corde = corde
-#         self.lignes =[]
-#         self.win = GraphWin(nom,larg,long)
-        
-#         self.initPoints()
-#         self.actualiserCorde()
-#         self.afficherPoints()
-        
-#         etape = 0 #Numero de l instruction en cours
-#         limite = len(instructionsGroupees)
-#         while(self.win.checkKey() == ""):
-#             #Annimation corde
-#             time.sleep(0.05)
-#             self.attendreClic()
-#             if etape < limite:
-#                 #Corde pas finie d etre affichee
-#                 for loop in range(instructionsGroupees[etape][1]):
-#                     self.corde.deplacerTete(instructionsGroupees[etape][0])
-#                     self.actualiserCorde()
+    def __str__(self):
+        msg = ""
+        for ligne in self.grille:
+            for case in ligne:
+                if case:
+                    msg += " 1 "
+                else:
+                    msg += " 0 "
+            msg += "\n"
+        return msg
 
-#         self.win.close()
-    
-#     def initPoints(self):
-#         for loop in range(self.corde.taille) :
-#             self.lignes.append(Line(Point(0,0)),Line(Point(0,0)))
-
-#     def afficherPoints(self):
-#         for i in range(len(self.points)):
-#             self.points[i].draw(self.win)
+    def initGrille(self):
+        self.grille = [[False for loop in range(self.larg)] for loop in range(self.long)]
+    def calculerDimensions(self, instructionsGroupees):
+        """Retourne les Noeudonnees du premier point dans la grille avec ses dimensions de la forme (larg, long, NoeudDebut)"""
+        x = 0
+        xmin = float("inf")
+        xmax = 0
+        y = 0
+        ymin = float("inf")
+        ymax = 0
+        for instructionGroupee in instructionsGroupees:
+            for loop in range(instructionGroupee[1]):
+                x += instructionGroupee[0].x
+                y += instructionGroupee[0].y
             
-#     def actualiserCorde(self):
-#         for i in range(self.corde.taille):
-#             noeud = self.corde.corps[i]
-#             self.points[i].x = noeud.x
-#             self.points[i].y = noeud.y
-#             update()
-     
-#     def attendreClic(self):
-#         NoeudClic = self.win.checkMouse()
-#         if  NoeudClic!= None:
-#             #Clic de la souris
-#             distance = self.corde.corps[0].distance(Noeud(NoeudClic.x, NoeudClic.y))
-#             deltaX = distance[0]
-#             deltaY = distance[1]
-#             #TODO Afficher la corde bouger
-                
+            if y < ymin:
+                ymin = y
+            elif y > ymax:
+                ymax = y
+            if x < xmin:
+                xmin = x
+            elif x > xmax:
+                xmax = x
+
+        larg = xmax - xmin + 1
+        long = ymax - ymin + 1
+        coordDepart = Noeud(-xmin, -ymin)
+        
+        self.larg = larg
+        self.long = long
+        self.initGrille()
+
+        return coordDepart
+    def sommeCasesVisitees(self):
+        """Renvoie le nombre de cases visitees"""
+        compteur = 0
+        for ligne in self.grille:
+            for case in ligne:
+                if case:
+                    compteur += 1
+        return compteur   
+class Fenetre:
+    def __init__(self, nom, larg, long, corde, instructionsGroupees):
+        self.nom = nom
+        self.larg = larg
+        self.long = long
+        self.corde = corde
+        self.lignes =[]
+        self.win = GraphWin(nom,larg,long)
+        
+        self.initPoints()
+        self.actualiserCorde()
+        self.afficherPoints()
+        
+        etape = 0 #Numero de l instruction en cours
+        limite = len(instructionsGroupees)
+        while(self.win.checkKey() == ""):
+            #Annimation corde
+            time.sleep(0.05)
+            self.attendreClic()
+            if etape < limite:
+                #Corde pas finie d etre affichee
+                for loop in range(instructionsGroupees[etape][1]):
+                    self.corde.deplacerTete(instructionsGroupees[etape][0])
+                    self.actualiserCorde()
+
+        self.win.close()
     
+    def initPoints(self):
+        for loop in range(self.corde.taille) :
+            self.lignes.append(Line(Point(0,0)),Line(Point(0,0)))
+    def afficherPoints(self):
+        for i in range(len(self.points)):
+            self.points[i].draw(self.win)
+    def actualiserCorde(self):
+        for i in range(self.corde.taille):
+            noeud = self.corde.noeuds[i]
+            self.points[i].x = noeud.x
+            self.points[i].y = noeud.y
+            update()
+    def attendreClic(self):
+        NoeudClic = self.win.checkMouse()
+        if  NoeudClic!= None:
+            #Clic de la souris
+            distance = self.corde.noeuds[0].distance(Noeud(NoeudClic.x, NoeudClic.y))
+            deltaX = distance[0]
+            deltaY = distance[1]
+
+
 #Structuration des instruction
 instructionsGroupees = datas.split("\n")
 for i in range(len(instructionsGroupees)):
@@ -190,84 +241,38 @@ for i in range(len(instructionsGroupees)):
     instructionsGroupees[i] = instructionsGroupees[i].split(" ")
     instructionsGroupees[i][0] = Direction(instructionsGroupees[i][0])
     instructionsGroupees[i][1] = int(instructionsGroupees[i][1])
-    
-    
-def dimensionsGrille(instructionsGroupees):
-    """Retourne les Noeudonnees du premier point dans la grille avec ses dimensions de la forme (larg, long, NoeudDebut)"""
-    x = 0
-    xmin = float("inf")
-    xmax = 0
-    y = 0
-    ymin = float("inf")
-    ymax = 0
-    for instructionGroupee in instructionsGroupees:
-        for loop in range(instructionGroupee[1]):
-            x += instructionGroupee[0].x
-            y += instructionGroupee[0].y
-        
-        if y < ymin:
-            ymin = y
-        elif y > ymax:
-            ymax = y
-        if x < xmin:
-            xmin = x
-        elif x > xmax:
-            xmax = x
 
-    larg = xmax - xmin + 1
-    long = ymax - ymin + 1
-    NoeudDebut = Noeud(-xmin, -ymin)
-     
-    return (larg, long, NoeudDebut)
+# -- Creation casesVisitees --
+casesVisitees = Grille()
+coordDepart = casesVisitees.calculerDimensions(instructionsGroupees)
+print("Coord de depart :",coordDepart,"\n")
 
-def executeInstructions(instructionsGroupees, larg,long, xDebut, yDebut, corde):
-    """Execute les instructions de deplacement de la corde
-       Renvoie les Noeudonnees de la queue et de la tete de la corde apres mouvements"""
-   
-    casesVisitees = [[False for loop in range(larg)]for loop in range(long)]
-    
-    #Coordonnees du debut
-    casesVisitees[corde[-1].y][corde[-1].x]= True
+# -- Creation de la corde --
+corde = Corde(10, coordDepart)
+corde.executeInstructions(instructionsGroupees, casesVisitees)
+print("Cases visitees :")
+print(casesVisitees)
+print("Nombre de cases visitees:",casesVisitees.sommeCasesVisitees(), "\n")
 
-    
-    for instructionGroupee in instructionsGroupees:
-        for loop in range(instructionGroupee[1]):        
-            ancienneCoord = corde[].copy()
-            corde.deplacer()
-            casesVisitees[NoeudQ.y][NoeudQ.x] = True
-            
-                    
-    return casesVisitees
-
-def afficheGrille(grille):
-    for ligne in grille:
-        for case in ligne:
-            if case:
-                print("1 ", end="")
-            else:
-                print("0 ",end="")
-        print("")
-            
-def sommeCasesVisitees(casesVisitees):
-    """Renvoie le nombre de cases visitees"""
-    compteur = 0
-    for ligne in casesVisitees:
-        for case in ligne:
-            if case:
-                compteur += 1
-    return compteur
-
-
-dimensions = dimensionsGrille(instructionsGroupees)
-larg = dimensions[0]
-long = dimensions[1]
-NoeudDebut = dimensions[2]
-print("Dimensions :",dimensions,"\n")
-
-
-corde = Corde(10, NoeudDebut)
-casesVisitees = executeInstructions(instructionsGroupees,larg, long, NoeudDebut.x, NoeudDebut.y, corde)
-print("Nombre de cases visitees:",sommeCasesVisitees(casesVisitees),"\n")
-
-
+# -- Creation affichage --
 # affichage = Fenetre("Cordes", larg, long, corde, instructionsGroupees)
+
+
+# corde = Corde(2, Noeud(1,2))
+# corde.deplacerTete(Direction("R"))
+# print(corde)
+# corde.deplacerTete(Direction("U"))
+# print(corde)
+# corde.deplacerTete(Direction("U"))
+# print(corde)
+# corde.deplacerTete(Direction("L"))
+# print(corde)
+# corde.deplacerTete(Direction("L"))
+# print(corde)
+# corde.deplacerTete(Direction("D"))
+# print(corde)
+# corde.deplacerTete(Direction("D"))
+# print(corde)
+# corde.deplacerTete(Direction("D"))
+# print(corde)
+

@@ -1,0 +1,77 @@
+<?xml version="1.1"?>
+<!DOCTYPE Tabula_Rasa>
+<Algorithme>
+  <nom>Algorithme</nom>
+  <date_creation>21/12/2022 04:17</date_creation>
+  <Elements>
+    <Action>
+      <Position>552;149</Position>
+      <StyleLien>2</StyleLien>
+      <PreAssertion>CasesVisitees
+CaseCourante
+nbEtapes</PreAssertion>
+      <PostAssertion>[nbEtapes]</PostAssertion>
+      <Titre>Parcourt cases</Titre>
+      <DetailsVisible>1</DetailsVisible>
+      <DetailsVideVisible>1</DetailsVideVisible>
+      <Enfants>
+        <Iteration>
+          <Position>701.5;238.5</Position>
+          <StyleLien>1</StyleLien>
+          <Titre>Pour les 4 cases adjacentes</Titre>
+          <IterationFixe>1</IterationFixe>
+          <Enfants>
+            <Condition>
+              <Position>550;320</Position>
+              <StyleLien>0</StyleLien>
+              <estUnique>0</estUnique>
+              <operationsLogiques>
+                <operation>
+                  <Titre>la case est la plus haute</Titre>
+                  <Enfants>
+                    <Action>
+                      <Position>569;420</Position>
+                      <StyleLien>1</StyleLien>
+                      <PreAssertion>?</PreAssertion>
+                      <PostAssertion>?</PostAssertion>
+                      <Titre>Retourner nbEtapes</Titre>
+                      <DetailsVisible>0</DetailsVisible>
+                      <DetailsVideVisible>1</DetailsVideVisible>
+                      <Enfants/>
+                    </Action>
+                  </Enfants>
+                </operation>
+                <operation>
+                  <Titre>la case n'a pas ete visitee ET elle est inferieure ou superieure d'1 </Titre>
+                  <Enfants>
+                    <Action>
+                      <Position>741;426</Position>
+                      <StyleLien>1</StyleLien>
+                      <PreAssertion>?</PreAssertion>
+                      <PostAssertion>?</PostAssertion>
+                      <Titre>Retourner 
+Parcourt cases(copieCasesVisitees, coppieCaseCourante, copieNbEtapes)</Titre>
+                      <DetailsVisible>0</DetailsVisible>
+                      <DetailsVideVisible>1</DetailsVideVisible>
+                      <Enfants/>
+                    </Action>
+                  </Enfants>
+                </operation>
+              </operationsLogiques>
+            </Condition>
+          </Enfants>
+        </Iteration>
+      </Enfants>
+    </Action>
+    <Action>
+      <Position>192;246</Position>
+      <StyleLien>1</StyleLien>
+      <PreAssertion>?</PreAssertion>
+      <PostAssertion>?</PostAssertion>
+      <Titre>CasesVisitees remplit de False</Titre>
+      <DetailsVisible>1</DetailsVisible>
+      <DetailsVideVisible>1</DetailsVideVisible>
+      <Enfants/>
+    </Action>
+  </Elements>
+</Algorithme>
